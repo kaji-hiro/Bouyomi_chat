@@ -1,23 +1,18 @@
-TeamSpeak 3 Plugin Software Development Kit
+## Bouyomi_chat
+
+This is TS3 plugin that reads text chat aloud by Bouyomi.
+
+### How to use
+
+1. Download this plugin and [棒読みちゃん](https://chi.usamimi.info/Program/Application/BouyomiChan/#Download).
+2. Install this plugin.
+3. Start 'BouyomiChan.exe'.
+4. Join your server and send or receive text chat.
+
+### Settings
+
+Settings such as volume, voice type are set by Bouyomi Chan.
+It may be better to turn down the volume because default setting is loud.
+
+TeamSpeak 3 Plugin Software Development Kit  
 Copyright (c) TeamSpeak Systems GmbH
-
-Contents
-- Demo plugin sourcecode as template for developing own plugins
-- Required header files
-- Clientlib documentation
-
-bin\plugins\
-  Target build directory for the sample project. Instead you might want to configure your output directory
-  to the plugins directory within your TeamSpeak 3 client installation.
-docs\
-  Clientlib documentation 
-include\
-  Required header files
-src\
-  Sourcecode of our test plugin
-
-We strongly recommend to build upon the test plugin. Plugins are required to export some special functions,
-which already exist in the test plugin. Optional functions may be removed if not used. See code comments
-for details.
-
-For questions please visit our forums at https://forum.teamspeak.com
