@@ -207,7 +207,7 @@ static void print_and_free_bookmarks_list(struct PluginBookmarkList* list)
 int ts3plugin_processCommand(uint64 serverConnectionHandlerID, const char* command) {
 	char buf[COMMAND_BUFSIZE];
 	char *s, *param1 = NULL, *param2 = NULL;
-	int i = 1;
+	int i = 0;
 	enum { CMD_NONE = 0, CMD_JOIN, CMD_COMMAND, CMD_SERVERINFO, CMD_CHANNELINFO, CMD_AVATAR, CMD_ENABLEMENU, CMD_SUBSCRIBE, CMD_UNSUBSCRIBE, CMD_SUBSCRIBEALL, CMD_UNSUBSCRIBEALL, CMD_BOOKMARKSLIST } cmd = CMD_NONE;
 #ifdef _WIN32
 	char* context = NULL;
@@ -443,7 +443,7 @@ int ts3plugin_processCommand(uint64 serverConnectionHandlerID, const char* comma
         }
 	}
 
-	return 0;  /* Plugin handled command */
+	return 1;  /* Plugin handled command */
 }
 
 /* Client changed current server connection handler */
@@ -458,7 +458,7 @@ void ts3plugin_currentServerConnectionChanged(uint64 serverConnectionHandlerID) 
 
 /* Static title shown in the left column in the info frame */
 const char* ts3plugin_infoTitle() {
-	return "Test plugin info";
+	return 0;
 }
 
 /*
@@ -811,38 +811,30 @@ int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetM
 				long len = (long)strlen(message);
 				char* msg = message;
 
-				//���M�����f�[�^�̐���(���������������擪�̕���)
 				char buf[15];
-				*((short*)&buf[0]) = 0x0001; //[0-1]  (16Bit) �R�}���h          �i 0:���b�Z�[�W�ǂݏグ�j
-				*((short*)&buf[2]) = speed;  //[2-3]  (16Bit) ���x              �i-1:�_�ǂ݂��������ʏ��̐ݒ��j
-				*((short*)&buf[4]) = tone;   //[4-5]  (16Bit) ����              �i-1:�_�ǂ݂��������ʏ��̐ݒ��j
-				*((short*)&buf[6]) = volume; //[6-7]  (16Bit) ����              �i-1:�_�ǂ݂��������ʏ��̐ݒ��j
-				*((short*)&buf[8]) = voice;  //[8-9]  (16Bit) ����              �i 0:�_�ǂ݂��������ʏ��̐ݒ��A1:����1�A2:����2�A3:�j��1�A4:�j��2�A5:�����A6:���{�b�g�A7:�@�B1�A8:�@�B2�A10001�`:SAPI5�j
-				*((char*)&buf[10]) = 0;      //[10]   ( 8Bit) �������̕����R�[�h�i 0:UTF-8, 1:Unicode, 2:Shift-JIS�j
-				*((long*)&buf[11]) = len;    //[11-14](32Bit) �������̒���
+				*((short*)&buf[0]) = 0x0001;
+				*((short*)&buf[2]) = speed;
+				*((short*)&buf[4]) = tone;
+				*((short*)&buf[6]) = volume;
+				*((short*)&buf[8]) = voice;
+				*((char*)&buf[10]) = 0;
+				*((long*)&buf[11]) = len;
 
-				//�ڑ����w���p�\���̂̏���
 				server.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
 				server.sin_port = htons(50001);
 				server.sin_family = AF_INET;
 
-				//Winsock2������
 				WSAStartup(MAKEWORD(1, 1), &wsadata);
 
-				//�\�P�b�g�쐬
 				sock = socket(AF_INET, SOCK_STREAM, 0);
 
-				//�T�[�o�ɐڑ�
 				connect(sock, (struct sockaddr*)&server, sizeof(server));
 
-				//�f�[�^���M
 				send(sock, buf, 15, 0);
 				send(sock, msg, len, 0);
 
-				//�\�P�b�g�I��
 				closesocket(sock);
 
-				//Winsock2�I��
 				WSACleanup();
 	}
 #endif
@@ -934,10 +926,7 @@ int ts3plugin_onClientPokeEvent(uint64 serverConnectionHandlerID, anyID fromClie
         return 0;
     }
     if(fromClientID != myID) {  /* Don't reply when source is own client */
-        if(ts3Functions.requestSendPrivateTextMsg(serverConnectionHandlerID, "Received your poke!", fromClientID, NULL) != ERROR_ok) {
-            ts3Functions.logMessage("Error requesting send text message", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
-		}
-		else {
+
 			struct sockaddr_in server;
 			WSADATA     wsadata;
 			SOCKET      sock;
@@ -946,40 +935,31 @@ int ts3plugin_onClientPokeEvent(uint64 serverConnectionHandlerID, anyID fromClie
 			long len = (long)strlen(message);
 			char* msg = message;
 
-			//���M�����f�[�^�̐���(���������������擪�̕���)
 			char buf[15];
-			*((short*)&buf[0]) = 0x0001; //[0-1]  (16Bit) �R�}���h          �i 0:���b�Z�[�W�ǂݏグ�j
-			*((short*)&buf[2]) = speed;  //[2-3]  (16Bit) ���x              �i-1:�_�ǂ݂��������ʏ��̐ݒ��j
-			*((short*)&buf[4]) = tone;   //[4-5]  (16Bit) ����              �i-1:�_�ǂ݂��������ʏ��̐ݒ��j
-			*((short*)&buf[6]) = volume; //[6-7]  (16Bit) ����              �i-1:�_�ǂ݂��������ʏ��̐ݒ��j
-			*((short*)&buf[8]) = voice;  //[8-9]  (16Bit) ����              �i 0:�_�ǂ݂��������ʏ��̐ݒ��A1:����1�A2:����2�A3:�j��1�A4:�j��2�A5:�����A6:���{�b�g�A7:�@�B1�A8:�@�B2�A10001�`:SAPI5�j
-			*((char*)&buf[10]) = 0;      //[10]   ( 8Bit) �������̕����R�[�h�i 0:UTF-8, 1:Unicode, 2:Shift-JIS�j
-			*((long*)&buf[11]) = len;    //[11-14](32Bit) �������̒���
+			*((short*)&buf[0]) = 0x0001;
+			*((short*)&buf[2]) = speed;
+			*((short*)&buf[4]) = tone;
+			*((short*)&buf[6]) = volume;
+			*((short*)&buf[8]) = voice;
+			*((char*)&buf[10]) = 0;
+			*((long*)&buf[11]) = len;
 
-			//�ڑ����w���p�\���̂̏���
 			server.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
 			server.sin_port = htons(50001);
 			server.sin_family = AF_INET;
 
-			//Winsock2������
 			WSAStartup(MAKEWORD(1, 1), &wsadata);
 
-			//�\�P�b�g�쐬
 			sock = socket(AF_INET, SOCK_STREAM, 0);
 
-			//�T�[�o�ɐڑ�
 			connect(sock, (struct sockaddr*)&server, sizeof(server));
 
-			//�f�[�^���M
 			send(sock, buf, 15, 0);
 			send(sock, msg, len, 0);
 
-			//�\�P�b�g�I��
 			closesocket(sock);
 
-			//Winsock2�I��
 			WSACleanup();
-		}
     }
     return 0;  /* 0 = handle normally, 1 = client will ignore the poke */
 }
